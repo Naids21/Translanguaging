@@ -230,12 +230,68 @@ button.primary:hover{transform:translateY(-1px)}
   .hero-safe-copy{background:linear-gradient(90deg,#100a0b 0%,rgba(16,10,11,.96) 58%,rgba(16,10,11,.75))}
   .grid,.benefits,.strategy-grid,.compare,.activity,.lab,.ppst,.image-layout{grid-template-columns:1fr 1fr}
 }
+
+/* PHONE / TOUCH MODE */
+.mobile-menu-btn{display:none;border:1px solid rgba(199,166,106,.35);background:rgba(255,255,255,.05);color:#f2e7d9;width:40px;height:36px;border-radius:10px;font-size:20px;cursor:pointer}
+.mobile-menu{display:none;position:fixed;z-index:3000;top:60px;right:12px;width:min(260px,calc(100vw - 24px));padding:10px;border:1px solid rgba(199,166,106,.3);border-radius:16px;background:rgba(28,19,18,.98);box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.mobile-menu.open{display:grid}
+.mobile-menu button{border:0;background:transparent;color:#eee1d3;text-align:left;padding:13px 12px;border-radius:10px;font-weight:800;cursor:pointer}
+.mobile-menu button.active,.mobile-menu button:hover{background:#4a2528;color:#fff}
+
+@media(max-width:800px){
+ html,body{overflow:hidden!important}
+ .site-nav{height:56px!important;padding:0 14px!important}
+ .brand{font-size:13px}.brand i{font-size:11px}.navlinks{display:none!important}.mobile-menu-btn{display:block}
+ .deck-slide{top:56px!important;height:calc(100vh - 56px)!important}
+ .canvas{width:94vw!important}
+ .deck-slide:not([data-title="Welcome"]) .canvas{padding:8px 0 14px!important}
+ .slide-head h2{font-size:clamp(29px,8vw,46px)!important;line-height:.96!important}
+ .slide-head p{font-size:13px!important;line-height:1.4!important;margin-top:10px!important}
+ .eyebrow{font-size:10px!important;margin-bottom:8px!important}
+ .grid,.benefits,.strategy-grid{grid-template-columns:1fr 1fr!important;gap:9px!important;margin-top:16px!important}
+ .obj{padding:14px!important;min-height:145px!important;border-radius:16px!important}
+ .obj .num{font-size:30px!important}
+ .obj h3,.benefit h3,.strategy h3,.step h3,.ppst-card h3,.lab-card h3{font-size:15px!important;margin:10px 0 6px!important}
+ .obj p,.benefit p,.strategy p,.step p,.ppst-card p,.lab-card p{font-size:11px!important;line-height:1.35!important}
+ .benefit{padding:14px!important;min-height:140px!important}
+ .strategy{padding:14px!important;min-height:150px!important}
+ .compare,.activity,.lab,.ppst,.image-layout,.image-layout.reverse{grid-template-columns:1fr!important;gap:10px!important;margin-top:16px!important}
+ .compare-card,.lab-card,.ppst-card{padding:16px!important;min-height:0!important}
+ .bigquote{font-size:22px!important;margin:14px 0 10px!important}
+ .story-art{min-height:170px!important;max-height:190px!important}
+ .art-strip{grid-template-columns:repeat(3,1fr)!important;gap:6px!important}
+ .art-strip .story-art{height:72px!important}
+ .step{padding:12px!important}
+ .quote-box{font-size:12px!important;padding:12px 14px!important;margin-top:10px!important}
+ [data-title="Welcome"] .canvas{width:100%!important;height:100%!important}
+ .hero-safe{grid-template-columns:1fr!important}
+ .hero-safe-art{position:absolute!important;inset:0!important;opacity:.42;border-left:0!important}
+ .hero-safe-art-overlay{background:linear-gradient(90deg,rgba(16,10,11,.98),rgba(16,10,11,.90) 58%,rgba(16,10,11,.62))!important}
+ .hero-safe-copy{min-height:100%;padding:28px 24px 24px!important;background:transparent!important}
+ .hero-safe-copy h1{font-size:clamp(39px,11vw,62px)!important;line-height:.9!important}
+ .hero-safe-subtitle{font-size:14px!important;max-width:90%!important}
+ .hero-safe-quote{font-size:13px!important}
+ .hero-safe-pills{gap:5px!important}.hero-safe-pills span{font-size:8px!important;padding:6px 8px!important}
+ .hero-safe-heart{width:82px!important;height:82px!important;right:8%!important;top:7%!important}
+ .hero-safe-art-label{display:none!important}
+}
+@media(max-width:430px){
+ .brand b:first-child{display:none}.brand{font-size:12px}
+ .grid,.benefits,.strategy-grid{gap:7px!important}
+ .obj,.benefit,.strategy{padding:11px!important}
+ .obj{min-height:130px!important}.obj .num{font-size:26px!important}
+ .obj h3,.benefit h3,.strategy h3{font-size:13px!important}
+ .obj p,.benefit p,.strategy p,.step p,.lab-card p,.ppst-card p{font-size:10px!important}
+ .slide-head h2{font-size:clamp(27px,8vw,40px)!important}
+}
+
 </style>
 </head>
 <body>
 
 <header class="site-nav">
   <div class="brand"><b>ENGLISH</b><span class="x">×</span><b>LAC</b> <i>/ The Tell-Tale Heart</i></div>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
   <nav class="navlinks">
     <button data-go="1">Objectives</button>
     <button data-go="2">Concept</button>
@@ -245,6 +301,14 @@ button.primary:hover{transform:translateY(-1px)}
     <button data-go="13">PPST</button>
   </nav>
 </header>
+<div class="mobile-menu" id="mobileMenu">
+<button data-mobile-go="1">Objectives</button>
+<button data-mobile-go="2">Concept</button>
+<button data-mobile-go="5">Strategies</button>
+<button data-mobile-go="7">Lesson Lab</button>
+<button data-mobile-go="9">Facilitator</button>
+<button data-mobile-go="13">PPST</button>
+</div>
 
 <main id="presentation">
 <section class="deck-slide" data-title="Welcome" data-index="0"><div class="canvas">
@@ -574,6 +638,8 @@ button.primary:hover{transform:translateY(-1px)}
   const art=document.querySelector('.hero-safe-art');
   if(img){ img.addEventListener('error',()=>art.classList.add('fallback')); if(img.complete && !img.naturalWidth) art.classList.add('fallback'); }
 
+  window.LACMobileGo=show;
+  window.LACMobileCurrent=()=>current;
   show(0);
 })();
 </script>
@@ -661,5 +727,26 @@ button.primary:hover{transform:translateY(-1px)}
   });
 })();
 </script>
+
+<script>
+(function(){
+ const btn=document.getElementById('mobileMenuBtn'),menu=document.getElementById('mobileMenu');
+ if(!btn||!menu)return;
+ btn.addEventListener('click',e=>{e.stopPropagation();menu.classList.toggle('open')});
+ menu.querySelectorAll('[data-mobile-go]').forEach(b=>b.addEventListener('click',()=>{
+   window.LACMobileGo(Number(b.dataset.mobileGo)); menu.classList.remove('open');
+ }));
+ document.addEventListener('click',e=>{if(!menu.contains(e.target)&&e.target!==btn)menu.classList.remove('open')});
+ let sx=0,sy=0;
+ document.addEventListener('touchstart',e=>{if(e.touches.length===1){sx=e.touches[0].clientX;sy=e.touches[0].clientY}},{passive:true});
+ document.addEventListener('touchend',e=>{
+   if(!sx)return;
+   const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+   if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.25)window.LACMobileGo(window.LACMobileCurrent()+(dx<0?1:-1));
+   sx=sy=0;
+ },{passive:true});
+})();
+</script>
+
 </body>
 </html>
