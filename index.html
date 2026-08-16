@@ -1327,72 +1327,55 @@ body.presentation-mode{
 }
 
 
-/* =========================================================
-   PROJECTOR-SAFE AUTO FIT
-   Every slide is scaled as one composition so nothing gets cut.
-   ========================================================= */
+/* SCREEN-SAFE PRESENTATION */
 .slide{
-  padding:76px 5vw 54px !important;
+  width:100vw !important;
+  height:100vh !important;
+  min-height:100vh !important;
+  box-sizing:border-box !important;
   overflow:hidden !important;
-  justify-content:center !important;
-  align-items:stretch;
+  padding:88px 5vw 58px !important;
 }
-.slide-fit{
+.slide > .fit-content{
   width:100%;
   height:auto;
   min-height:0;
   display:flex;
   flex-direction:column;
   justify-content:center;
+  align-items:stretch;
   transform-origin:center center;
-  will-change:transform;
 }
-.slide-fit > .slide-head{
-  flex:0 0 auto;
-  margin-bottom:20px;
-}
-.slide-fit > .grid,
-.slide-fit > .benefits,
-.slide-fit > .strategy-grid,
-.slide-fit > .activity,
-.slide-fit > .lab,
-.slide-fit > .ppst,
-.slide-fit > .compare,
-.slide-fit > .image-layout{
+.slide > .fit-content .slide-head{
   flex:0 0 auto;
 }
-.slide-fit > .quote-box{
+.slide > .fit-content .grid,
+.slide > .fit-content .benefits,
+.slide > .fit-content .strategy-grid,
+.slide > .fit-content .activity,
+.slide > .fit-content .lab,
+.slide > .fit-content .ppst,
+.slide > .fit-content .compare,
+.slide > .fit-content .image-layout{
   flex:0 0 auto;
 }
-.slide-fit .art-strip{
-  flex:0 0 auto;
-}
-.slide-fit .story-art img{
+.slide > .fit-content .story-art img{
   max-height:100%;
 }
-@media(max-width:900px){
-  .slide{padding:72px 4vw 48px !important}
-}
-@media(max-width:600px){
-  .slide{padding:68px 4vw 44px !important}
+.slide[data-title="Welcome"]{
+  padding:0 !important;
 }
 
 
-/* Dense-slide safeguards */
-.slide[data-title="Strategies"] .strategy{min-height:0 !important;padding:18px !important}
-.slide[data-title="Strategies"] .strategy-grid{gap:10px !important}
-.slide[data-title="Lesson sequence"] .activity{gap:10px !important}
-.slide[data-title="Lesson sequence"] .step{padding:13px !important}
-.slide[data-title="Lesson sequence"] .art-strip .story-art{height:105px !important}
-.slide[data-title="Reflection"] .compare-card{padding:20px !important}
-.slide[data-title="Reflection"] .art-strip .story-art{height:100px !important}
-.slide[data-title="Objectives"] .obj{min-height:0 !important;padding:18px !important}
-.slide[data-title="Why it matters"] .benefit{padding:20px !important}
-.slide[data-title="Teacher lens"] .obj{min-height:0 !important;padding:18px !important}
-.slide[data-title="Myths"] .obj{min-height:0 !important;padding:18px !important}
-.slide[data-title="PPST"] .ppst-card{padding:20px !important}
-.slide[data-title="Concept"] .image-layout .story-art,
-.slide[data-title="Tell-Tale Heart"] .image-layout .story-art{min-height:300px !important}
+.slide > .fit-content > *{
+  max-width:100%;
+}
+.slide > .fit-content .slide-head{
+  margin-bottom:18px;
+}
+@media(max-width:1000px){
+  .slide{padding:82px 4vw 54px !important}
+}
 
 </style>
 </head>
@@ -2368,77 +2351,77 @@ document.querySelectorAll('.slide').forEach(slide=>{
 
 <script>
 (function(){
-  const decorative = new Set(['heartbeat-line','monitor-line','slide-number','cursor-glow']);
+  const presentation=document.getElementById('presentation');
+  if(!presentation)return;
+
+  function prepareSlide(slide){
+    if(slide.classList.contains('fit-prepared')) return;
+    slide.classList.add('fit-prepared');
+
+    // Never move absolutely-positioned elements (hero art, decorative layers).
+    // Only wrap normal document-flow content.
+    const flow=[];
+    Array.from(slide.children).forEach(child=>{
+      const style=getComputedStyle(child);
+      if(style.position==='absolute' || style.position==='fixed') return;
+      if(child.classList.contains('monitor-line') ||
+         child.classList.contains('heartbeat-line') ||
+         child.classList.contains('slide-number')) return;
+      flow.push(child);
+    });
+
+    if(!flow.length)return;
+
+    const wrapper=document.createElement('div');
+    wrapper.className='fit-content';
+
+    // Keep the wrapper in the same stacking position as the flow content.
+    slide.insertBefore(wrapper, flow[0]);
+    flow.forEach(child=>wrapper.appendChild(child));
+  }
 
   function fitSlide(slide){
-    if(!slide || !slide.classList.contains('active')) return;
+    if(!slide.classList.contains('active'))return;
+    const box=slide.querySelector(':scope > .fit-content');
 
-    const content = slide.querySelector('.slide-fit');
-    if(!content) return;
+    // Hero is already a fixed full-screen composition.
+    if(slide.dataset.title==='Welcome' || !box)return;
 
-    // Reset before measuring.
-    content.style.transform='scale(1)';
+    box.style.transform='scale(1)';
 
-    const slideRect = slide.getBoundingClientRect();
-    const availableHeight = Math.max(200, slideRect.height - 18);
-    const availableWidth = Math.max(300, slideRect.width - 12);
+    const availableW=slide.clientWidth-24;
+    const availableH=slide.clientHeight-132;
 
-    const naturalHeight = content.scrollHeight;
-    const naturalWidth = content.scrollWidth;
+    const naturalW=box.scrollWidth;
+    const naturalH=box.scrollHeight;
 
-    let scale = Math.min(
+    let scale=Math.min(
       1,
-      availableHeight / Math.max(naturalHeight,1),
-      availableWidth / Math.max(naturalWidth,1)
+      availableW/Math.max(naturalW,1),
+      availableH/Math.max(naturalH,1)
     );
 
-    // Never make projector text absurdly tiny. If a slide needs more room,
-    // the content itself is tightened below by the slide-specific rules.
-    scale = Math.max(scale, 0.72);
-
-    content.style.transform='scale('+scale.toFixed(4)+')';
+    // Preserve readable typography.
+    scale=Math.max(scale,.78);
+    box.style.transform=`scale(${scale})`;
   }
 
   function fitAll(){
-    document.querySelectorAll('.slide').forEach(fitSlide);
-  }
-
-  function prepare(){
-    document.querySelectorAll('.slide').forEach(slide=>{
-      if(slide.querySelector('.slide-fit')) return;
-
-      const wrapper=document.createElement('div');
-      wrapper.className='slide-fit';
-
-      [...slide.children].forEach(child=>{
-        const cls=child.classList || [];
-        if(decorative.has(cls[0])) return;
-        if(child.id==='dustField') return;
-        wrapper.appendChild(child);
-      });
-
-      slide.appendChild(wrapper);
-    });
-
+    document.querySelectorAll('#presentation .slide').forEach(prepareSlide);
     requestAnimationFrame(()=>{
-      requestAnimationFrame(fitAll);
+      document.querySelectorAll('#presentation .slide').forEach(fitSlide);
     });
   }
 
+  window.addEventListener('load',fitAll);
   window.addEventListener('resize',fitAll);
-  window.addEventListener('load',prepare);
 
-  // Re-fit whenever the active slide changes.
   const observer=new MutationObserver(()=>{
     requestAnimationFrame(fitAll);
   });
-  observer.observe(document.getElementById('presentation') || document.body,{
-    subtree:true,
-    attributes:true,
-    attributeFilter:['class']
-  });
+  observer.observe(presentation,{subtree:true,attributes:true,attributeFilter:['class']});
 
-  if(document.readyState!=='loading') prepare();
+  if(document.readyState!=='loading')fitAll();
 })();
 </script>
 
